@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm i
+RUN npm ci
 
 RUN npm install -g ts-node
 

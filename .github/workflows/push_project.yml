@@ -21,7 +21,7 @@ jobs:
       - name: Check NPM
         run: npm --version
       - name: Deps
-        run: npm ci
+        run: npm i
       - name: Build
         run: npm run build
         
@@ -38,7 +38,7 @@ jobs:
       - name: Check NPM
         run: npm --version
       - name: Deps
-        run: npm ci
+        run: npm i
       - name: Lint
         run: npm run lint
         
