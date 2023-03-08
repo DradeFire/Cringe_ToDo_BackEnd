@@ -15,11 +15,11 @@ export default class App {
 
     switch (env) {
       case Env.DEV: {
-        this.port = UrlConst.DEV_PORT
+        this.port = UrlConst.DEV_PORT;
         break;
       }
       case Env.PROD: {
-        this.port = UrlConst.PROD_PORT
+        this.port = UrlConst.PROD_PORT;
         break;
       }
     }
