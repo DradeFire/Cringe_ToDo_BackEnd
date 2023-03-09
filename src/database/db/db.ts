@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize-typescript";
-import { Dev_Config, PROD_Config } from "../config/db_config";
+import { Dev_Config, PROD_Config, TEST_Config } from "../config/db_config";
 import CurrentEnv, { Env } from "../../utils/env_config";
 
 /**
@@ -14,6 +14,9 @@ function getSequelize(): Sequelize {
         case Env.PROD: {
             return new Sequelize(PROD_Config);
         }
+        case Env.TEST: {
+            return new Sequelize(TEST_Config);
+        }
     }
 }
 
@@ -23,6 +26,7 @@ const sequelizeInstance = getSequelize();
  * Инициализация БД
  */
 const initDB = async () => {
+    console.log("init db");
     await sequelizeInstance.authenticate(); //Авторизация нашей ORM в БД
 
     // await sequelizeInstance.dropSchema('public', {});

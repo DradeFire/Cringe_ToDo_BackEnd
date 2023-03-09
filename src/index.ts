@@ -13,6 +13,10 @@ async function startApp(env: Env) {
             app = await App.create(Env.PROD);
             break;
         }
+        case Env.TEST: {
+            app = await App.create(Env.TEST);
+            break;
+        }
     }
 
     await app.listen()

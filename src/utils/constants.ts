@@ -1,4 +1,5 @@
 export class UrlConst {
+    static TEST_PORT = 3000
     static DEV_PORT = 5000;
     static PROD_PORT = 3000;
     static HEADER_ACCESS_TOKEN = 'Authorization';

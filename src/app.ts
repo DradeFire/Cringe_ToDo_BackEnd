@@ -1,10 +1,11 @@
 import express, { Application } from "express";
-import { initDB } from "./database/db/db";
+import { initDB, sequelizeInstance } from "./database/db/db";
 import { Env } from "./utils/env_config";
 import { UrlConst } from "./utils/constants";
 import cors from "cors";
 import { notFound } from "./middleware/notFoundHandler";
 import { errorHandler } from "./middleware/errorHandler";
+import testRoutes from "./routers/test";
 
 export default class App {
   private app: Application;
@@ -20,6 +21,10 @@ export default class App {
       }
       case Env.PROD: {
         this.port = UrlConst.PROD_PORT;
+        break;
+      }
+      case Env.TEST: {
+        this.port = UrlConst.TEST_PORT;
         break;
       }
     }
@@ -38,7 +43,7 @@ export default class App {
 
     return app;
   }
-  
+
   /**
    * Инициализация различных утилит express
    */
@@ -61,7 +66,11 @@ export default class App {
    * @example this.app.use("/api/task", asyncHandler(requireToken), taskRoutes);
    */
   private initControllers() {
-    // TODO: add controllers
+    this.app.use("/api/test", testRoutes);
+  }
+
+  public getExpress() {
+    return this.app
   }
 
   async listen() {

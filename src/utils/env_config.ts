@@ -8,7 +8,8 @@ import { UrlConst } from "./constants";
  */
 export enum Env {
     DEV,
-    PROD
+    PROD,
+    TEST
 }
 
 
@@ -27,6 +28,9 @@ export default class CurrentEnv {
             case "PROD": {
                 return Env.PROD
             }
+            case "TEST": {
+                return Env.TEST
+            }
             default: {
                 throw new Error("Unknown env")
             }
@@ -41,6 +45,9 @@ export function getCurrentPort(): number {
         }
         case Env.PROD: {
             return UrlConst.PROD_PORT;
+        }
+        case Env.TEST: {
+            return UrlConst.TEST_PORT;
         }
     }
 }
