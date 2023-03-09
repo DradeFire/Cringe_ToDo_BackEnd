@@ -8,7 +8,7 @@
 
 Для запуска локально:
 1. Запустить PostgreSQL на порт 5432
-2. npm run dev
+2. ``npm run dev``
 
 Для запуска локально (в Docker):
 1. Запустить Docker
@@ -17,7 +17,7 @@
     ```docker-compose up```
 
 Для запуска тестов локально:
-1. npm run test
+1. ``npm run test``
 
 Для запуска ESlint локально:
-1. npm run lint
+1. ``npm run lint``
