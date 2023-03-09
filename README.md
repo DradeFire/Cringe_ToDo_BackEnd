@@ -15,3 +15,6 @@
 2. ./start_docker.sh
     или
   docker-compose up
+
+Для запуска тестов локально:
+1. npm run test
