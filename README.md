@@ -12,7 +12,6 @@
 
 Для запуска локально (в Docker):
 1. Запустить Docker
-2. 
-  ./start_docker.sh
+2. ./start_docker.sh
     или
   docker-compose up
