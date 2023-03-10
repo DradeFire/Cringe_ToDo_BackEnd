@@ -14,7 +14,7 @@ class Config {
 }
 
 /**
- * Конфиг DEV окружения
+ * Конфиг DEV окружения для ДБ
  */
 export const Dev_Config = {
   database: "tasktracker_dev",
@@ -22,13 +22,13 @@ export const Dev_Config = {
   dialect: Config.dialect,
   username: Config.username,
   password: Config.password,
-  models: Config.models,
+  models: [__dirname + '/../model/final/*.model.*', __dirname + '/../models/relations/*.model.*'],
   port: parseInt(Config.port!),
   modelMatch: Config.modelMatch
 } as SequelizeOptions
 
 /**
- * Конфиг PROD окружения
+ * Конфиг PROD окружения для ДБ
  */
 export const PROD_Config = {
   database: config.POSTGRES_PROD_DB,
@@ -36,7 +36,21 @@ export const PROD_Config = {
   dialect: Config.dialect,
   username: Config.username,
   password: Config.password,
-  models: Config.models,
+  models: [__dirname + '/../model/final/*.model.*', __dirname + '/../models/relations/*.model.*'],
+  port: parseInt(Config.port!),
+  modelMatch: Config.modelMatch
+} as SequelizeOptions
+
+/**
+ * Конфиг TEST окружения для ДБ
+ */
+export const TEST_Config = {
+  database: "tasktracker_test",
+  host: "localhost",
+  dialect: Config.dialect,
+  username: Config.username,
+  password: Config.password,
+  models: [__dirname + '/../model/final/*.model.*', __dirname + '/../models/relations/*.model.*'],
   port: parseInt(Config.port!),
   modelMatch: Config.modelMatch
 } as SequelizeOptions
