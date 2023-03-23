@@ -6,7 +6,7 @@ class Config {
   static dialect: Dialect = 'postgres'
   static username = config.POSTGRES_USER
   static password = config.POSTGRES_PASS
-  static models = [__dirname + '../model/final/*.model.*', __dirname + '../models/relations/*.model.*']
+  static models = [__dirname + '/../model/final/*.model.*', __dirname + '/../models/relations/*.model.*']
   static port = config.POSTGRES_PORT
   static modelMatch = (filename: string, member: string) => {
     return filename.substring(0, filename.indexOf('.model')) === member.toLowerCase();
@@ -22,7 +22,7 @@ export const Dev_Config = {
   dialect: Config.dialect,
   username: Config.username,
   password: Config.password,
-  models: [__dirname + '/../model/final/*.model.*', __dirname + '/../models/relations/*.model.*'],
+  models: Config.models,
   port: parseInt(Config.port!),
   modelMatch: Config.modelMatch
 } as SequelizeOptions
@@ -36,7 +36,7 @@ export const PROD_Config = {
   dialect: Config.dialect,
   username: Config.username,
   password: Config.password,
-  models: [__dirname + '/../model/final/*.model.*', __dirname + '/../models/relations/*.model.*'],
+  models: Config.models,
   port: parseInt(Config.port!),
   modelMatch: Config.modelMatch
 } as SequelizeOptions
@@ -50,7 +50,7 @@ export const TEST_Config = {
   dialect: Config.dialect,
   username: Config.username,
   password: Config.password,
-  models: [__dirname + '/../model/final/*.model.*', __dirname + '/../models/relations/*.model.*'],
+  models: Config.models,
   port: parseInt(Config.port!),
   modelMatch: Config.modelMatch
 } as SequelizeOptions
