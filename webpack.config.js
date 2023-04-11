@@ -1,28 +1,36 @@
 const path = require('path');
-const nodeExternals = require('webpack-node-externals');
+const webpack = require('webpack');
 
 module.exports = {
     entry: './src/index.ts',
-    devtool: 'inline-source-map',
+    mode: 'production',
+    target: 'node',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'index.js',
+    },
+    resolve: {
+        extensions: ['.ts', '.js'],
+        alias: {
+            core: path.resolve(__dirname, 'src', 'core'),
+            database: path.resolve(__dirname, 'src', 'database'),
+            middlewares: path.resolve(__dirname, 'src', 'middlewares'),
+            modules: path.resolve(__dirname, 'src', 'modules'),
+            network: path.resolve(__dirname, 'src', 'network'),
+            swagger: path.resolve(__dirname, 'src', 'swagger'),
+            utils: path.resolve(__dirname, 'src', 'utils'),
+        },
+    },
+    plugins: [
+        new webpack.IgnorePlugin({ resourceRegExp: /^pg-native$/ }),
+        new webpack.IgnorePlugin({ resourceRegExp: /^pg-hstore$/ }),
+    ],
     module: {
         rules: [
             {
-                test: /\.ts?$/,
-                use: 'ts-loader',
-                exclude: /node_modules/,
+                test: /\.ts$/,
+                use: ['ts-loader'],
             },
         ],
-    },
-    resolve: {
-        extensions: ['.tsx', '.ts', '.js'],
-    },
-    output: {
-        filename: 'bundle.js',
-        path: path.resolve(__dirname, 'dist'),
-    },
-    target: 'node', // use require() & use NodeJs CommonJS style
-    externals: [nodeExternals()], // in order to ignore all modules in node_modules folder
-    externalsPresets: {
-        node: true // in order to ignore built-in modules like path, fs, etc. 
     },
 };

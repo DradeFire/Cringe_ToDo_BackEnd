@@ -1,15 +1,34 @@
-FROM node:18
+#build TS -> JS
+FROM node:16.18.1-alpine AS build
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY package*.json ./
+COPY package.json ./
+COPY yarn.lock ./
 
-RUN npm ci
+# Установка зависимостей
+RUN yarn install --frozen-lockfile
 
-RUN npm install -g ts-node
+# Копируем 
+COPY tsconfig.json ./
+COPY webpack.config.js ./
+COPY src ./src
 
-COPY . .
+# Сборка проекта
+RUN yarn build:webpack
 
-EXPOSE 3000
+#####################
+#Подготовка к запуску
+FROM node:16.18.1-alpine AS deploy
 
-CMD ["npm", "run", "prod"]
+WORKDIR /app
+
+RUN apk add --no-cache bash \
+  && yarn add global dotenv
+
+COPY swagger-ui-dist ./swagger-ui-dist
+
+COPY --from=build ./app/dist ./dist
+
+#Команда для запуска сервера внутри контейнера
+CMD [ "node", "-r", "dotenv/config", "dist/index.js" ]

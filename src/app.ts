@@ -1,43 +1,41 @@
-import express, { Application } from "express";
-import { initDB, sequelizeInstance } from "./database/db/db";
-import { Env } from "./utils/env_config";
-import { UrlConst } from "./utils/constants";
+import express, { Application, Request, Response } from "express";
 import cors from "cors";
-import { notFound } from "./middleware/notFoundHandler";
-import { errorHandler } from "./middleware/errorHandler";
-import testRoutes from "./routers/test";
+import { getProcessEnv } from 'utils/utils-env-config';
+import { logInfo } from 'utils/utils-log';
+import http from 'http';
+import ip from 'ip';
+import helmet from 'helmet'
+import { notFound } from "middlewares/not-found";
+import { errorHandler } from "middlewares/error-handler";
+import { requestLogger } from "middlewares/logger";
+import { Constants } from "utils/constants";
+import { cwd } from "process";
+import SwaggerDoc from "core/swagger-doc";
+import { createDbIfNotExist, initSequelize } from "database/sequelize-client";
+import controllers from "modules/controllers";
 
 export default class App {
-  private app: Application;
+  private app: express.Application;
   private port: number;
+  private server: http.Server;
+  private IP: string;
 
-  constructor(env: Env) {
+  constructor() {
     this.app = express();
-
-    switch (env) {
-      case Env.DEV: {
-        this.port = UrlConst.DEV_PORT;
-        break;
-      }
-      case Env.PROD: {
-        this.port = UrlConst.PROD_PORT;
-        break;
-      }
-      case Env.TEST: {
-        this.port = UrlConst.TEST_PORT;
-        break;
-      }
-    }
+    this.server = http.createServer(this.app);
+    this.IP = ip.address();
+    this.port = getProcessEnv().SERVER_PORT;
   }
 
   /**
    * Инициализация приложения
    */
-  static async create(env: Env): Promise<App> {
-    const app = new App(env);
+  static async create(): Promise<App> {
+    const app = new App();
 
-    await initDB();
-    app.initUtils()
+    // await createDbIfNotExist();
+    await initSequelize();
+    app.initMiddlewares()
     app.initControllers();
     app.initErrorHandling();
 
@@ -47,10 +45,15 @@ export default class App {
   /**
    * Инициализация различных утилит express
    */
-  private initUtils() {
+  private initMiddlewares() {
     this.app.use(cors());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(express.json());
+    this.app.use(
+      helmet({
+        contentSecurityPolicy: false,
+      })
+    );
   }
 
   /**
@@ -66,15 +69,27 @@ export default class App {
    * @example this.app.use("/api/task", asyncHandler(requireToken), taskRoutes);
    */
   private initControllers() {
-    this.app.use("/api/test", testRoutes);
+
+    const ctrlArr: any[] = controllers;
+
+    this.app.use(Constants.SWAGGER_DOCS, express.static(`${cwd()}/${Constants.SWAGGER_UI_DIST_PATH}`));
+    this.app.use(Constants.SWAGGER_JSON, (_1, res, _2) => res.json(SwaggerDoc.get()));
+
+    this.app.use(requestLogger);
+
+    this.app.all('/test', (req: Request, res: Response) => {
+      res.status(200).json({
+        message: `Service is working on port: ${this.port}`,
+      });
+    });
+
+    ctrlArr.forEach((el) => this.app.use(el.path, el.router));
   }
 
-  public getExpress() {
-    return this.app
-  }
-
-  async listen() {
-    this.app.listen(this.port, () => console.log(`Server has been started ${this.port}`));
+  public async listen() {
+    this.server.listen(this.port, () => {
+      logInfo(`Service ready on address: http://${this.IP}:${this.port}`);
+    });
   }
 
 }

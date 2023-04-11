@@ -1,0 +1,12 @@
+require('tsconfig-paths').register({
+  baseUrl: './dist',
+  paths: [],
+});
+
+const path = require('path');
+require('dotenv').config();
+
+module.exports = {
+  'config': path.resolve('dist', 'database', 'config.js'),
+  'migrations-path': path.resolve('dist', 'database', 'migrations'),
+};
