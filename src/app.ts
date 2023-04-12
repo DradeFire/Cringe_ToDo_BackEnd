@@ -83,7 +83,13 @@ export default class App {
       });
     });
 
-    ctrlArr.forEach((el) => this.app.use(el.path, el.router));
+
+
+    ctrlArr.forEach((el) => {
+      console.log(el.path)
+      console.log(el.router)
+      this.app.use(el.path, el.router)
+    });
   }
 
   public async listen() {

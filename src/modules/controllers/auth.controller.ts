@@ -6,11 +6,14 @@ import { UserDto } from "modules/dto/user.dto";
 import { dtoValidator } from "middlewares/validate";
 import PassService from "modules/services/pass.service";
 import TokenService from "modules/services/token.service";
+import { requireToken } from "middlewares/require-token";
 
 @ApiController('/api/auth')
 class AuthController {
 
-    @GET('/me')
+    @GET('/me', {
+        handlers: [requireToken],
+    })
     async me(req: BaseRequest, res: Response, next: NextFunction) {
         const user = await UserService.getUserByLogin(req.user.login);
         res.json(user?.toJSON())
@@ -23,16 +26,18 @@ class AuthController {
         const dto: UserDto = req.body;
         const candidate = await UserService.getUserByLogin(dto.login)
         if (!candidate) {
-            res.status(400).json({ message: "Not ok" });
+            throw Error("Not ok")
         }
         if (!await PassService.comparePasswords(dto.pass, candidate!.pass)) {
-            res.status(400).json({ message: "Not ok" })
+            throw Error("Not ok")
         }
         const token = await TokenService.createTokenByLogin(req.user.login);
         res.json(token.toJSON())
     }
 
-    @GET('/logout')
+    @GET('/logout', {
+        handlers: [requireToken],
+    })
     async logout(req: BaseRequest, res: Response, next: NextFunction) {
         await TokenService.destroyToken(req.token);
         res.json({ message: "Ok" });
@@ -45,9 +50,11 @@ class AuthController {
         const dto: UserDto = req.body;
         const candidate = await UserService.getUserByLogin(dto.login)
         if (candidate) {
-            res.status(400).json({ message: "Not ok" });
+            throw Error("Not ok")
         }
         const user = await UserService.createNewUser(dto.login, dto.pass);
         res.json(user.toJSON())
     }
 }
+
+export default new AuthController();

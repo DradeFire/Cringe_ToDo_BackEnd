@@ -1,6 +1,6 @@
 import Token from "database/models/final/Token.model";
 import User from "database/models/final/User.model";
-import { NextFunction } from "express";
+import { NextFunction, Response } from "express";
 import BaseRequest from "modules/base/base.request";
 import { Constants, StatusCode } from "utils/constants";
 
