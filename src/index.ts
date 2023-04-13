@@ -1,25 +1,27 @@
-import App from "./app";
-import CurrentEnv, { Env } from "./utils/env_config";
+import { logError, logInfo } from 'utils/utils-log';
+import App from './app';
 
-async function startApp(env: Env) {
-    let app: App
+async function bootstrap() {
+  const app = await App.create();
 
-    switch (env) {
-        case Env.DEV: {
-            app = await App.create(Env.DEV);
-            break;
-        }
-        case Env.PROD: {
-            app = await App.create(Env.PROD);
-            break;
-        }
-        case Env.TEST: {
-            app = await App.create(Env.TEST);
-            break;
-        }
-    }
+  // do app specific cleaning before exiting
+  process.on('exit', async () => {
+    logInfo('Exit');
+  });
 
-    await app.listen()
+  // catch ctrl+c event and exit normally
+  process.on('SIGINT', () => {
+    logInfo('SIGINT - Ctrl-C...');
+    process.exit(2);
+  });
+
+  //catch uncaught exceptions, trace, then exit normally
+  process.on('uncaughtException', (error) => {
+    logError('Uncaught Exception...', error);
+    process.exit(99);
+  });
+
+  await app.listen();
 }
 
-startApp(CurrentEnv.env())
+bootstrap();

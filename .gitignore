@@ -1,5 +1,9 @@
 node_modules
 npm-debug.log
-/.vscode
+.vscode
 dist
 package-lock.json
+.idea
+.env
+.DS_Store
+test/coverage
