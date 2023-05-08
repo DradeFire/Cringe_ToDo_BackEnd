@@ -8,7 +8,7 @@ export default class TaskService {
 
   static async isValid(id: string, user: User) {
     const isValid = await MMUserTask.findOne({
-      where: { userId: user.id, TaskId: id },
+      where: { userId: user.id, taskId: id },
     });
     return isValid;
   }
@@ -33,7 +33,7 @@ export default class TaskService {
       listTodo.push(
         await Task.findOne({
           where: {
-            id: itemList[i].TaskId,
+            id: itemList[i].taskId,
           },
         })
       );
@@ -54,7 +54,7 @@ export default class TaskService {
     });
     await MMUserTask.create({
       userId: user.id,
-      TaskId: newtask.id,
+      taskId: newtask.id,
     });
     return newtask;
   }
@@ -85,7 +85,7 @@ export default class TaskService {
     });
     await MMUserTask.destroy({
       where:{
-        TaskId: id
+        taskId: id
       }
     })
   }

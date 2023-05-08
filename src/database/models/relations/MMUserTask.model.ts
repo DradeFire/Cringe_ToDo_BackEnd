@@ -16,6 +16,6 @@ export default class MMUserTask extends Model {
     userId!: string
 
     @Column
-    TaskId!: string
+    taskId!: string
 
 }
