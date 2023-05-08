@@ -13,7 +13,7 @@ export default class Task extends Model {
     public id!: string;
 
     @Column
-    loginUser!: string
+    parentId!: string
 
     @Column
     title!: string
@@ -23,5 +23,14 @@ export default class Task extends Model {
 
     @Column
     isCompled!: boolean
+
+    @Column
+    deadline!: number
+
+    @Column
+    priority!: number
+
+    @Column
+    notification!: number
 
 }

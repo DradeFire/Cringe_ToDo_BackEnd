@@ -16,7 +16,7 @@ class TodoController {
     })
     async createToDo(req: BaseRequest, res: Response, next: NextFunction) {
         const dto: TaskDto = req.body;
-        const newTask = await TaskService.createNewToDo(dto.title, dto.description, dto.isCompled, req.user);
+        const newTask = await TaskService.createNewToDo(dto, req.user);
         if (!newTask) {
             throw Error("Task not create")
         }
@@ -36,7 +36,12 @@ class TodoController {
         handlers: [requireToken],
     })
     async getOneToDo(req: BaseRequest, res: Response, next: NextFunction) {
-        const task = await TaskService.getTaskbyId(req.params.id, req.user);
+        const isValid = await TaskService.isValid(req.params.id, req.user);
+        if(!isValid){
+            throw Error("Not ok")
+        }
+        
+        const task = await TaskService.getTaskbyId(req.params.id);
         if (!task) {
             throw Error("Not ok")
         }
@@ -48,11 +53,12 @@ class TodoController {
     })
     async changepass(req: BaseRequest, res: Response, next: NextFunction) {
         const dto: TaskDto = req.body;
-        const task = await TaskService.getTaskbyId(req.params.id, req.user);
-        if (!task) {
-            throw Error("Таска с таким id не существует")
+        const isValid = await TaskService.isValid(req.params.id, req.user);
+        if(!isValid){
+            throw Error("Not ok")
         }
-        await TaskService.updateTask(req.params.id, dto.title, dto.description, dto.isCompled)
+        
+        await TaskService.updateTask(req.params.id, dto)
         res.json({ message: "Ok" })
     }
 
@@ -60,9 +66,9 @@ class TodoController {
         handlers: [requireToken],
     })
     async deleteToDo(req: BaseRequest, res: Response, next: NextFunction) {
-        const task = await TaskService.getTaskbyId(req.params.id, req.user);
-        if (!task) {
-            throw Error("Таска с таким id не существует")
+        const isValid = await TaskService.isValid(req.params.id, req.user);
+        if(!isValid){
+            throw Error("Not ok")
         }
         await TaskService.deleteTask(req.params.id)
         res.json({ message: "Ok" })

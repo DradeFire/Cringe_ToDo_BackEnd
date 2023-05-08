@@ -26,10 +26,10 @@ class AuthController {
         const dto: UserDto = req.body;
         const candidate = await UserService.getUserByLogin(dto.login)
         if (!candidate) {
-            throw Error("Не удалось войти")
+            throw Error("Пользователь не существует")
         }
         if (!await PassService.comparePasswords(dto.pass, candidate!.pass)) {
-            throw Error("Не удалось войти")
+            throw Error("Неверный пароль")
         }
         const token = await TokenService.createTokenByLogin(dto.login);
         res.json(token.toJSON())
