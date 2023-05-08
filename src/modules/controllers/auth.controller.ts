@@ -26,16 +26,16 @@ class AuthController {
         const dto: UserDto = req.body;
         const candidate = await UserService.getUserByLogin(dto.login)
         if (!candidate) {
-            throw Error("Not ok")
+            throw Error("Не удалось войти")
         }
         if (!await PassService.comparePasswords(dto.pass, candidate!.pass)) {
-            throw Error("Not ok")
+            throw Error("Не удалось войти")
         }
-        const token = await TokenService.createTokenByLogin(req.user.login);
+        const token = await TokenService.createTokenByLogin(dto.login);
         res.json(token.toJSON())
     }
 
-    @GET('/logout', {
+    @POST('/logout', {
         handlers: [requireToken],
     })
     async logout(req: BaseRequest, res: Response, next: NextFunction) {
@@ -43,14 +43,14 @@ class AuthController {
         res.json({ message: "Ok" });
     }
 
-    @GET('/registration', {
+    @POST('/registration', {
         handlers: [dtoValidator(UserDto)],
     })
     async registration(req: BaseRequest, res: Response, next: NextFunction) {
         const dto: UserDto = req.body;
         const candidate = await UserService.getUserByLogin(dto.login)
         if (candidate) {
-            throw Error("Not ok")
+            throw Error("Пользователь существует")
         }
         const user = await UserService.createNewUser(dto.login, dto.pass);
         res.json(user.toJSON())

@@ -18,6 +18,9 @@ class PassController {
         if (!await PassService.comparePasswords(dto.lastPassword, req.user.pass)) {
             throw Error("Not ok")
         }
+        if (dto.newPassword.length<8){
+            throw Error("Длина пароля должна быть не меньше 8 символов")
+        }
         await UserService.updateUser(req.user.login, dto.newPassword)
         res.json({ message: "Ok" })
     }
