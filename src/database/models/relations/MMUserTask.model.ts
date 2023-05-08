@@ -1,9 +1,9 @@
 import { Column, DataType, Model, Table } from "sequelize-typescript"
 
 @Table({
-    tableName: "mm_user_group_table"
+    tableName: "mm_user_task_table"
 })
-export default class MMUserGroup extends Model {
+export default class MMUserTask extends Model {
 
     @Column({
         defaultValue: DataType.UUIDV4,
@@ -16,12 +16,6 @@ export default class MMUserGroup extends Model {
     userId!: string
 
     @Column
-    groupId!: string
+    taskId!: string
 
-    /**
-     * false - read-only
-     * true - read-write
-     */
-    @Column
-    role!: boolean
 }
