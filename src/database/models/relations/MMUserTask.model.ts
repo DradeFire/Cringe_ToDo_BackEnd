@@ -4,7 +4,7 @@ import { Column, DataType, Model, Table } from "sequelize-typescript"
     tableName: "mm_user_task_table"
 })
 export default class MMUserTask extends Model {
-
+  
     @Column({
         defaultValue: DataType.UUIDV4,
         type: DataType.UUID,
