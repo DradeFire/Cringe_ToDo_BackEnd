@@ -5,7 +5,6 @@ import { TaskDto } from "modules/dto/task.dto";
 import { where } from "sequelize";
 
 export default class TaskService {
-
   static async isValid(id: string, user: User) {
     const isValid = await MMUserTask.findOne({
       where: { userId: user.id, taskId: id },
@@ -14,7 +13,7 @@ export default class TaskService {
   }
 
   static async getTaskbyId(id: string) {
-      const task = await Task.findOne({
+    const task = await Task.findOne({
       where: {
         id: id,
       },
@@ -84,9 +83,30 @@ export default class TaskService {
       },
     });
     await MMUserTask.destroy({
-      where:{
-        taskId: id
+      where: {
+        taskId: id,
+      },
+    });
+  }
+  static async getTaskByIDParent(id: string, user: User) {
+    const itemList = await MMUserTask.findAll({
+      where: {
+        userId: user.id,
+      },
+    });
+    const listTodo = [];
+    for (let i = 0; i < itemList.length; i++) {
+      const task = await Task.findOne({
+        where: {
+          id: itemList[i].taskId,
+          parentId: id,
+        },
+      });
+      if (task) {
+        listTodo.push(task);
       }
-    })
+    }
+
+    return listTodo;
   }
 }
