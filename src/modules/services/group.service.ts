@@ -1,6 +1,8 @@
 import Group from "database/models/final/Group.model";
 import User from "database/models/final/User.model";
 import MMUserGroup from "database/models/relations/MMUserGroup.model";
+import { ChangeInfoGroupDto } from "modules/dto/change-informationGroup";
+import { ChangeRoleGroupDto } from "modules/dto/change-roleGroup";
 import { GroupDto } from "modules/dto/group.dto";
 import { where } from "sequelize";
 
@@ -45,6 +47,36 @@ export default class GroupService {
     }
 
     return listgroup;
+  }
+  static async updateGroupInfo(id: string, dto: ChangeInfoGroupDto) {
+    await Group.update(
+      {
+        title: dto.title,
+        description: dto.description,
+      },
+      {
+        where: {
+          id: id,
+        },
+      }
+    );
+  }
+  static async updateGroupRole(
+    id: string,
+    dto: ChangeRoleGroupDto,
+    user: User
+  ) {
+    await MMUserGroup.update(
+      {
+        role: dto.role,
+      },
+      {
+        where: {
+          userId: user.id,
+          groupId: id,
+        },
+      }
+    );
   }
   static async isValid(id: string, user: User) {
     const isValid = await MMUserGroup.findOne({
