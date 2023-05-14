@@ -5,6 +5,8 @@ import GroupService from "modules/services/group.service";
 import { GroupDto } from "modules/dto/group.dto";
 import { dtoValidator } from "middlewares/validate";
 import { requireToken } from "middlewares/require-token";
+import { ChangeInfoGroupDto } from "modules/dto/change-informationGroup";
+import { ChangeRoleGroupDto } from "modules/dto/change-roleGroup";
 
 @ApiController("/api/group")
 class GroupController {
@@ -58,6 +60,40 @@ class GroupController {
       throw Error("Not ok");
     }
     res.json(role.role);
+  }
+  @PATCH("/changeGroupInfo/:id", {
+    handlers: [requireToken, dtoValidator(ChangeInfoGroupDto)],
+  })
+  async changeinfogroup(req: BaseRequest, res: Response, next: NextFunction) {
+    const dto: ChangeInfoGroupDto = req.body;
+    const isValid = await GroupService.isValid(req.params.id, req.user);
+    if (!isValid) {
+      throw Error("Not ok");
+    }
+
+    if (!isValid.role) {
+      throw Error("Not Rights On Write");
+    }
+
+    await GroupService.updateGroupInfo(req.params.id, dto);
+    res.json({ message: "Ok" });
+  }
+  @PATCH("/changeGroupRole/:id", {
+    handlers: [requireToken, dtoValidator(ChangeRoleGroupDto)],
+  })
+  async changerolegroup(req: BaseRequest, res: Response, next: NextFunction) {
+    const dto: ChangeRoleGroupDto = req.body;
+    const isValid = await GroupService.isValid(req.params.id, req.user);
+    if (!isValid) {
+      throw Error("Not ok");
+    }
+
+    if (!isValid.role) {
+      throw Error("Not Rights On Write");
+    }
+
+    await GroupService.updateGroupRole(req.params.id, dto, req.user);
+    res.json({ message: "Ok" });
   }
 }
 
