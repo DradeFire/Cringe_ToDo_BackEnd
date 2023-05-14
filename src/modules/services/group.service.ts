@@ -10,7 +10,7 @@ export default class GroupService {
       title: dto.title,
       description: dto.description,
     });
-    const role = await MMUserGroup.create({
+    await MMUserGroup.create({
       userId: user.id,
       groupId: newgroup.id,
       role: dto.role,
