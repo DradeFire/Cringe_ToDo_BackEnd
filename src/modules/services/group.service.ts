@@ -13,7 +13,49 @@ export default class GroupService {
     await MMUserGroup.create({
       userId: user.id,
       groupId: newgroup.id,
+      role: dto.role,
     });
     return newgroup;
+  }
+
+  static async getGroupbyId(id: string) {
+    const group = await Group.findOne({
+      where: {
+        id: id,
+      },
+    });
+    return group;
+  }
+
+  static async getAllGroup(user: User) {
+    const itemList = await MMUserGroup.findAll({
+      where: {
+        userId: user.id,
+      },
+    });
+    const listgroup = [];
+    for (let i = 0; i < itemList.length; i++) {
+      listgroup.push(
+        await Group.findOne({
+          where: {
+            id: itemList[i].groupId,
+          },
+        })
+      );
+    }
+
+    return listgroup;
+  }
+  static async isValid(id: string, user: User) {
+    const isValid = await MMUserGroup.findOne({
+      where: { userId: user.id, groupId: id },
+    });
+    return isValid;
+  }
+  static async getRoleGroupbyId(id: string) {
+    const role = await MMUserGroup.findOne({
+      where: { groupId: id },
+    });
+    return role;
   }
 }

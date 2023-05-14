@@ -19,6 +19,46 @@ class GroupController {
     }
     res.json(newGroup.toJSON());
   }
+  @GET("/allgroupbyUser", {
+    handlers: [requireToken],
+  })
+  async getAllGroup(req: BaseRequest, res: Response, next: NextFunction) {
+    const allgroup = await GroupService.getAllGroup(req.user);
+    if (!allgroup) {
+      throw Error("Not ok");
+    }
+    res.json(allgroup);
+  }
+  @GET("/groupbyID/:id", {
+    handlers: [requireToken],
+  })
+  async getOneGroup(req: BaseRequest, res: Response, next: NextFunction) {
+    const isAccessGroup = await GroupService.isValid(req.params.id, req.user);
+    if (!isAccessGroup) {
+      throw Error("Not ok");
+    }
+
+    const group = await GroupService.getGroupbyId(req.params.id);
+    if (!group) {
+      throw Error("Not ok");
+    }
+    res.json(group);
+  }
+  @GET("/rolegroupbyID/:id", {
+    handlers: [requireToken],
+  })
+  async getGroup(req: BaseRequest, res: Response, next: NextFunction) {
+    const isAccessGroup = await GroupService.isValid(req.params.id, req.user);
+    if (!isAccessGroup) {
+      throw Error("Not ok");
+    }
+
+    const role = await GroupService.getRoleGroupbyId(req.params.id);
+    if (!role) {
+      throw Error("Not ok");
+    }
+    res.json(role.role);
+  }
 }
 
 export default new GroupController();
