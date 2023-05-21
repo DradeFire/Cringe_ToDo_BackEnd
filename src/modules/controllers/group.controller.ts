@@ -95,6 +95,17 @@ class GroupController {
     await GroupService.updateGroupRole(req.params.id, dto, req.user);
     res.json({ message: "Ok" });
   }
+  @GET("/getUserGroup/:id", {
+    handlers: [requireToken],
+  })
+  async listUser(req: BaseRequest, res: Response, next: NextFunction) {
+    const isValid = await GroupService.isValid(req.params.id, req.user);
+    if (!isValid) {
+      throw Error("Not ok");
+    }
+    const list = await GroupService.getListUserGroup(req.params.id, req.user);
+    res.json(list);
+  }
 }
 
 export default new GroupController();

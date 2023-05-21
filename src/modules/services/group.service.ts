@@ -90,4 +90,22 @@ export default class GroupService {
     });
     return role;
   }
+  static async getListUserGroup(id: string, user: User) {
+    const itemList = await MMUserGroup.findAll({
+        where: {
+          groupId: id
+        }
+    })
+    const list = [];
+    for (let i = 0; i < itemList.length; i++) {
+      const user = await User.findOne({
+        where: {
+          id: itemList[i].userId,
+        },
+      })
+      list.push(user?.login);
+    }
+    
+    return list;
+}
 }
