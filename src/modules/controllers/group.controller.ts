@@ -106,6 +106,13 @@ class GroupController {
     const list = await GroupService.getListUserGroup(req.params.id, req.user);
     res.json(list);
   }
+  @GET("/getGroupUser", {
+    handlers: [requireToken],
+  })
+  async listGrp(req: BaseRequest, res: Response, next: NextFunction) {
+    const list = await GroupService.getListGroup(req.user);
+    res.json(list);
+  }
 }
 
 export default new GroupController();
