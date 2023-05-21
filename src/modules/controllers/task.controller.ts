@@ -69,7 +69,7 @@ class TodoController {
     if (!isValid) {
       throw Error("Not ok");
     }
-    await TaskService.deleteTask(req.params.id);
+    await TaskService.deleteTask(req.params.id, req.user);
     res.json({ message: "Ok" });
   }
   @GET("/getTaskByIDParent/:id", {

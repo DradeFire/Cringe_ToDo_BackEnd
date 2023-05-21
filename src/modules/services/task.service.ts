@@ -76,7 +76,11 @@ export default class TaskService {
       }
     );
   }
-  static async deleteTask(id: string) {
+  static async deleteTask(id: string, user: User) {
+    const list = await TaskService.getTaskByIDParent(id, user);
+    for (let i = 0; i < list.length; i++) {
+      await TaskService.deleteTask(list[i].id, user);
+    }
     await Task.destroy({
       where: {
         id: id,

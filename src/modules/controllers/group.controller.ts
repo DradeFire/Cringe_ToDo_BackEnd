@@ -113,6 +113,18 @@ class GroupController {
     const list = await GroupService.getListGroup(req.user);
     res.json(list);
   }
+  @DELETE("/deleteGroup/:id", {
+    handlers: [requireToken],
+  })
+  async deleteToDo(req: BaseRequest, res: Response, next: NextFunction) {
+    const isValid = await GroupService.isValid(req.params.id, req.user);
+    if (!isValid) {
+      throw Error("Not ok");
+    }
+    await GroupService.deleteGroup(req.params.id, req.user);
+    res.json({ message: "Ok" });
+  }
+
 }
 
 export default new GroupController();
