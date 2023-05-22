@@ -5,6 +5,7 @@ import { ChangeInfoGroupDto } from "modules/dto/change-informationGroup";
 import { ChangeRoleGroupDto } from "modules/dto/change-roleGroup";
 import { GroupDto } from "modules/dto/group.dto";
 import { where } from "sequelize";
+import TaskService from "./task.service";
 
 export default class GroupService {
   static async createNewGroup(dto: GroupDto, user: User) {
@@ -127,5 +128,21 @@ export default class GroupService {
     }
 
     return list;
+  }
+  static async deleteGroup(id: string, user: User) {
+    const list = await TaskService.getTaskByIDParent(id, user);
+    for (let i = 0; i < list.length; i++) {
+      await TaskService.deleteTask(list[i].id, user);
+    }
+    await Group.destroy({
+      where: {
+        id: id,
+      },
+    });
+    await MMUserGroup.destroy({
+      where: {
+        groupId: id,
+      },
+    });
   }
 }
