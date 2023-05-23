@@ -1,48 +1,70 @@
-import { ApiController, GET, PATCH } from "core/api-decorators";
+import { ApiController, GET, PATCH, POST } from "core/api-decorators";
 import BaseRequest from "modules/base/base.request";
-import { NextFunction, Response } from 'express';
+import { NextFunction, Response } from "express";
 import UserService from "modules/services/user.service";
 import { ChangeLoginDto } from "modules/dto/change-login.dto";
 import { dtoValidator } from "middlewares/validate";
 // import PassService from "modules/services/pass.service";
 // import TokenService from "modules/services/token.service";
 import { requireToken } from "middlewares/require-token";
+import { AddUserInGroup } from "modules/dto/addUserInGroup.dto";
+import GroupService from "modules/services/group.service";
 
-@ApiController('/api/user')
+@ApiController("/api/user")
 class UserController {
+  @GET("/me", {
+    handlers: [requireToken],
+  })
+  async me(req: BaseRequest, res: Response, next: NextFunction) {
+    const user = await UserService.getUserByLogin(req.user.login);
+    res.json(user?.toJSON());
+  }
+  @GET("/", {
+    handlers: [requireToken],
+  })
+  async mewithoutprivate(req: BaseRequest, res: Response, next: NextFunction) {
+    const user = await UserService.getUserByLoginWithoutPass(req.user.login);
+    res.json({ login: user });
+  }
 
-    @GET('/me', {
-        handlers: [requireToken],
-    })
-    async me(req: BaseRequest, res: Response, next: NextFunction) {
-        const user = await UserService.getUserByLogin(req.user.login);
-        res.json(user?.toJSON())
+  @PATCH("/changelogin", {
+    handlers: [requireToken, dtoValidator(ChangeLoginDto)],
+  })
+  async changepass(req: BaseRequest, res: Response, next: NextFunction) {
+    const dto: ChangeLoginDto = req.body;
+    if (!(await UserService.getUserByLogin(dto.lastLogin))) {
+      throw Error("Старый логин не совпадает!");
     }
-    @GET('/', {
-        handlers: [requireToken],
-    })
-    async mewithoutprivate(req: BaseRequest, res: Response, next: NextFunction) {
-        const user = await UserService.getUserByLoginWithoutPass(req.user.login);
-        res.json({login: user})
+    if (await UserService.getUserByLogin(dto.newLogin)) {
+      throw Error("Такий логин уже занят");
     }
+    await UserService.updateUserLogin(
+      dto.lastLogin,
+      dto.newLogin,
+      req.token.token
+    );
+    res.json({ message: "Ok" });
+  }
 
-
-    @PATCH('/changelogin', {
-        handlers: [requireToken, dtoValidator(ChangeLoginDto)],
-    })
-    async changepass(req: BaseRequest, res: Response, next: NextFunction) {
-        const dto: ChangeLoginDto = req.body;
-        if (!await UserService.getUserByLogin(dto.lastLogin)) {
-            throw Error("Старый логин не совпадает!")
-        }
-        if (await UserService.getUserByLogin(dto.newLogin)) {
-            throw Error("Такий логин уже занят")
-        }
-        await UserService.updateUserLogin(dto.lastLogin, dto.newLogin, req.token.token)
-        res.json({ message: "Ok" })
+  @POST("/addUserGroup", {
+    handlers: [requireToken, dtoValidator(AddUserInGroup)],
+  })
+  async addUser(req: BaseRequest, res: Response, next: NextFunction) {
+    const dto: AddUserInGroup = req.body;
+    const isValid = await GroupService.isValid(dto.groupId, req.user);
+    if (!isValid) {
+      throw Error("Not ok");
     }
-
-    
+    if (!isValid.role) {
+      throw Error("Not Rights On Write");
+    }
+    const user = await UserService.getUserbyId(dto.userId);
+    if(!user){
+        throw Error("User not found");
+    }
+    await UserService.addUser(dto, req.user);
+    res.json({ message: "Ok" });
+  }
 }
 
 export default new UserController();
