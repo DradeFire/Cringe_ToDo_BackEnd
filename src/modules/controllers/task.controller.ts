@@ -6,7 +6,7 @@ import { TaskDto } from "modules/dto/task.dto";
 import { dtoValidator } from "middlewares/validate";
 import { requireToken } from "middlewares/require-token";
 import GroupService from "modules/services/group.service";
-import { loadavg } from "os";
+
 
 @ApiController("/api/todos")
 class TodoController {
