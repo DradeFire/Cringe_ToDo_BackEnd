@@ -1,10 +1,34 @@
+import Group from "database/models/final/Group.model";
 import Task from "database/models/final/Task.model";
 import User from "database/models/final/User.model";
 import MMUserTask from "database/models/relations/MMUserTask.model";
 import { TaskDto } from "modules/dto/task.dto";
 import { where } from "sequelize";
+import GroupService from "./group.service";
 
 export default class TaskService {
+  static async isinGroup(parentId: string): Promise<any> {
+    if (!parentId) {
+      return null;
+    }
+    const group = await Group.findOne({
+      where: {
+        id: parentId,
+      },
+    });
+    if (!group) {
+      const taskParent = await Task.findOne({
+        where: {
+          id: parentId,
+        },
+      });
+      if (!taskParent) {
+        throw Error("Not ok");
+      }
+      return await TaskService.isinGroup(parentId);
+    }
+    return group;
+  }
   static async isValid(id: string, user: User) {
     const isValid = await MMUserTask.findOne({
       where: { userId: user.id, taskId: id },
@@ -41,7 +65,7 @@ export default class TaskService {
     return listTodo;
   }
 
-  static async createNewToDo(dto: TaskDto, user: User) {
+  static async createNewToDo(dto: TaskDto) {
     const newtask = await Task.create({
       parentId: dto.parentId,
       title: dto.title,
@@ -51,10 +75,40 @@ export default class TaskService {
       priority: dto.priority,
       notification: dto.notification,
     });
-    await MMUserTask.create({
-      userId: user.id,
-      taskId: newtask.id,
-    });
+    if (dto.parentId) {
+      const ifGroup = await Group.findOne({
+        where: {
+          id: dto.parentId,
+        },
+      });
+      if (ifGroup) {
+        const user = await GroupService.getListUserGroup(dto.parentId);
+        for (let i = 0; i < user.length; i++) {
+          const userfromdb = await User.findOne({
+            where: {
+              login: user[i],
+            },
+          });
+          if (userfromdb) {
+            await MMUserTask.create({
+              userId: userfromdb.id,
+              taskId: newtask.id,
+            });
+          }
+        }
+      }
+      const list = await MMUserTask.findAll({
+        where: {
+          taskId: dto.parentId,
+        },
+      });
+      for (let i = 0; i < list.length; i++) {
+        await MMUserTask.create({
+          userId: list[i].userId,
+          taskId: newtask.id,
+        });
+      }
+    }
     return newtask;
   }
 

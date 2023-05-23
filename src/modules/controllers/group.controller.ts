@@ -55,7 +55,7 @@ class GroupController {
       throw Error("Not ok");
     }
 
-    const role = await GroupService.getRoleGroupbyId(req.params.id);
+    const role = await GroupService.getRoleGroupbyId(req.params.id, req.user);
     if (!role) {
       throw Error("Not ok");
     }
@@ -103,7 +103,7 @@ class GroupController {
     if (!isValid) {
       throw Error("Not ok");
     }
-    const list = await GroupService.getListUserGroup(req.params.id, req.user);
+    const list = await GroupService.getListUserGroup(req.params.id);
     res.json(list);
   }
   @GET("/getGroupUser", {
@@ -119,6 +119,9 @@ class GroupController {
   async deleteToDo(req: BaseRequest, res: Response, next: NextFunction) {
     const isValid = await GroupService.isValid(req.params.id, req.user);
     if (!isValid) {
+      throw Error("Not ok");
+    }
+    if (!isValid.role) {
       throw Error("Not ok");
     }
     await GroupService.deleteGroup(req.params.id, req.user);

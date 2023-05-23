@@ -85,13 +85,13 @@ export default class GroupService {
     });
     return isValid;
   }
-  static async getRoleGroupbyId(id: string) {
+  static async getRoleGroupbyId(id: string, user: User) {
     const role = await MMUserGroup.findOne({
-      where: { groupId: id },
+      where: { groupId: id, userId: user.id },
     });
     return role;
   }
-  static async getListUserGroup(id: string, user: User) {
+  static async getListUserGroup(id: string) {
     const itemList = await MMUserGroup.findAll({
       where: {
         groupId: id,

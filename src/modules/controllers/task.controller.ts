@@ -4,9 +4,9 @@ import { NextFunction, Response } from "express";
 import TaskService from "modules/services/task.service";
 import { TaskDto } from "modules/dto/task.dto";
 import { dtoValidator } from "middlewares/validate";
-//import PassService from "modules/services/pass.service";
-//import TokenService from "modules/services/token.service";
 import { requireToken } from "middlewares/require-token";
+import GroupService from "modules/services/group.service";
+
 
 @ApiController("/api/todos")
 class TodoController {
@@ -15,7 +15,17 @@ class TodoController {
   })
   async createToDo(req: BaseRequest, res: Response, next: NextFunction) {
     const dto: TaskDto = req.body;
-    const newTask = await TaskService.createNewToDo(dto, req.user);
+    if (dto.parentId) {
+      const group = await TaskService.isinGroup(dto.parentId);
+      if (group) {
+        const role = await GroupService.getRoleGroupbyId(group.id, req.user);
+        if (!role?.role) {
+          throw Error("Нет прав на создание в группе");
+        }
+      }
+    }
+
+    const newTask = await TaskService.createNewToDo(dto);
     if (!newTask) {
       throw Error("Task not create");
     }
@@ -50,8 +60,19 @@ class TodoController {
   @PATCH("/changeTask/:id", {
     handlers: [requireToken, dtoValidator(TaskDto)],
   })
-  async changepass(req: BaseRequest, res: Response, next: NextFunction) {
+  async changeTodo(req: BaseRequest, res: Response, next: NextFunction) {
     const dto: TaskDto = req.body;
+    const task = await TaskService.getTaskbyId(req.params.id);
+    if (task) {
+        const group = await TaskService.isinGroup(task.parentId);
+        if (group) {
+          const role = await GroupService.getRoleGroupbyId(group.id, req.user);
+          if (!role?.role) {
+            throw Error("Нет прав на изменение в группе");
+          }
+        }
+      
+    }
     const isValid = await TaskService.isValid(req.params.id, req.user);
     if (!isValid) {
       throw Error("Not ok");
@@ -68,6 +89,18 @@ class TodoController {
     const isValid = await TaskService.isValid(req.params.id, req.user);
     if (!isValid) {
       throw Error("Not ok");
+    }
+    const task = await TaskService.getTaskbyId(req.params.id);
+    if (task) {
+      if (task.parentId) {
+        const group = await TaskService.isinGroup(task.parentId);
+        if (group) {
+          const role = await GroupService.getRoleGroupbyId(group.id, req.user);
+          if (!role?.role) {
+            throw Error("Нет прав на изменение в группе");
+          }
+        }
+      }
     }
     await TaskService.deleteTask(req.params.id, req.user);
     res.json({ message: "Ok" });
