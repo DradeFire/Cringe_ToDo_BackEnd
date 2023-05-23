@@ -60,7 +60,7 @@ class TodoController {
   @PATCH("/changeTask/:id", {
     handlers: [requireToken, dtoValidator(TaskDto)],
   })
-  async changepass(req: BaseRequest, res: Response, next: NextFunction) {
+  async changeTodo(req: BaseRequest, res: Response, next: NextFunction) {
     const dto: TaskDto = req.body;
     const task = await TaskService.getTaskbyId(req.params.id);
     if (task) {
