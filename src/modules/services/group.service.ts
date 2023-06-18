@@ -6,8 +6,12 @@ import { ChangeRoleGroupDto } from "modules/dto/change-roleGroup";
 import { GroupDto } from "modules/dto/group.dto";
 import { where } from "sequelize";
 import TaskService from "./task.service";
+import Task from "database/models/final/Task.model";
+import MMUserTask from "database/models/relations/MMUserTask.model";
+import { library } from "webpack";
 
 export default class GroupService {
+
   static async createNewGroup(dto: GroupDto, user: User) {
     const newgroup = await Group.create({
       title: dto.title,
@@ -22,33 +26,10 @@ export default class GroupService {
   }
 
   static async getGroupbyId(id: string) {
-    const group = await Group.findOne({
-      where: {
-        id: id,
-      },
-    });
+    const group = await Group.findByPk(id);
     return group;
   }
 
-  static async getAllGroup(user: User) {
-    const itemList = await MMUserGroup.findAll({
-      where: {
-        userId: user.id,
-      },
-    });
-    const listgroup = [];
-    for (let i = 0; i < itemList.length; i++) {
-      listgroup.push(
-        await Group.findOne({
-          where: {
-            id: itemList[i].groupId,
-          },
-        })
-      );
-    }
-
-    return listgroup;
-  }
   static async updateGroupInfo(id: string, dto: ChangeInfoGroupDto) {
     await Group.update(
       {
@@ -62,6 +43,7 @@ export default class GroupService {
       }
     );
   }
+
   static async updateGroupRole(
     id: string,
     dto: ChangeRoleGroupDto,
@@ -79,19 +61,15 @@ export default class GroupService {
       }
     );
   }
-  static async isValid(id: string, user: User) {
-    const isValid = await MMUserGroup.findOne({
-      where: { userId: user.id, groupId: id },
-    });
-    return isValid;
-  }
-  static async getRoleGroupbyId(id: string) {
+
+  static async getRoleGroupbyId(id: string, user: User) {
     const role = await MMUserGroup.findOne({
-      where: { groupId: id },
+      where: { groupId: id, userId: user.id },
     });
     return role;
   }
-  static async getListUserGroup(id: string, user: User) {
+
+  static async getListUserGroup(id: string) {
     const itemList = await MMUserGroup.findAll({
       where: {
         groupId: id,
@@ -109,6 +87,26 @@ export default class GroupService {
 
     return list;
   }
+
+  static async getListUsersGroup(id: string) {
+    const itemList = await MMUserGroup.findAll({
+      where: {
+        groupId: id,
+      },
+    });
+    const list = [];
+    for (let i = 0; i < itemList.length; i++) {
+      const user = await User.findOne({
+        where: {
+          id: itemList[i].userId,
+        },
+      });
+      list.push(user);
+    }
+
+    return list;
+  }
+
   static async getListGroup(user: User) {
     const itemList = await MMUserGroup.findAll({
       where: {
@@ -129,11 +127,21 @@ export default class GroupService {
 
     return list;
   }
-  static async deleteGroup(id: string, user: User) {
-    const list = await TaskService.getTaskByIDParent(id, user);
+  
+  static async deleteGroup(id: string) {
+    const list = await Task.findAll({ where: { groupId: id } });
     for (let i = 0; i < list.length; i++) {
-      await TaskService.deleteTask(list[i].id, user);
+      await MMUserTask.destroy({
+        where: {
+          taskId: list[i].id,
+        },
+      });
     }
+    await Task.destroy({
+      where: {
+        groupId: id,
+      },
+    });
     await Group.destroy({
       where: {
         id: id,
