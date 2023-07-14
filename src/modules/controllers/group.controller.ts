@@ -10,6 +10,7 @@ import { ChangeRoleGroupDto } from "modules/dto/change-roleGroup";
 
 @ApiController("/api/group")
 class GroupController {
+
   @POST("/createGroup", {
     handlers: [requireToken, dtoValidator(GroupDto)],
   })
@@ -21,21 +22,15 @@ class GroupController {
     }
     res.json(newGroup.toJSON());
   }
-  @GET("/allgroupbyUser", {
-    handlers: [requireToken],
-  })
-  async getAllGroup(req: BaseRequest, res: Response, next: NextFunction) {
-    const allgroup = await GroupService.getAllGroup(req.user);
-    if (!allgroup) {
-      throw Error("Not ok");
-    }
-    res.json(allgroup);
-  }
+  
   @GET("/groupbyID/:id", {
     handlers: [requireToken],
   })
   async getOneGroup(req: BaseRequest, res: Response, next: NextFunction) {
-    const isAccessGroup = await GroupService.isValid(req.params.id, req.user);
+    const isAccessGroup = await GroupService.getRoleGroupbyId(
+      req.params.id,
+      req.user
+    );
     if (!isAccessGroup) {
       throw Error("Not ok");
     }
@@ -46,27 +41,27 @@ class GroupController {
     }
     res.json(group);
   }
+
   @GET("/rolegroupbyID/:id", {
     handlers: [requireToken],
   })
   async getGroup(req: BaseRequest, res: Response, next: NextFunction) {
-    const isAccessGroup = await GroupService.isValid(req.params.id, req.user);
-    if (!isAccessGroup) {
-      throw Error("Not ok");
-    }
-
     const role = await GroupService.getRoleGroupbyId(req.params.id, req.user);
     if (!role) {
       throw Error("Not ok");
     }
     res.json(role.role);
   }
+
   @PATCH("/changeGroupInfo/:id", {
     handlers: [requireToken, dtoValidator(ChangeInfoGroupDto)],
   })
   async changeinfogroup(req: BaseRequest, res: Response, next: NextFunction) {
     const dto: ChangeInfoGroupDto = req.body;
-    const isValid = await GroupService.isValid(req.params.id, req.user);
+    const isValid = await GroupService.getRoleGroupbyId(
+      req.params.id,
+      req.user
+    );
     if (!isValid) {
       throw Error("Not ok");
     }
@@ -78,12 +73,16 @@ class GroupController {
     await GroupService.updateGroupInfo(req.params.id, dto);
     res.json({ message: "Ok" });
   }
+
   @PATCH("/changeGroupRole/:id", {
     handlers: [requireToken, dtoValidator(ChangeRoleGroupDto)],
   })
   async changerolegroup(req: BaseRequest, res: Response, next: NextFunction) {
     const dto: ChangeRoleGroupDto = req.body;
-    const isValid = await GroupService.isValid(req.params.id, req.user);
+    const isValid = await GroupService.getRoleGroupbyId(
+      req.params.id,
+      req.user
+    );
     if (!isValid) {
       throw Error("Not ok");
     }
@@ -95,17 +94,22 @@ class GroupController {
     await GroupService.updateGroupRole(req.params.id, dto, req.user);
     res.json({ message: "Ok" });
   }
+
   @GET("/getUserGroup/:id", {
     handlers: [requireToken],
   })
   async listUser(req: BaseRequest, res: Response, next: NextFunction) {
-    const isValid = await GroupService.isValid(req.params.id, req.user);
+    const isValid = await GroupService.getRoleGroupbyId(
+      req.params.id,
+      req.user
+    );
     if (!isValid) {
       throw Error("Not ok");
     }
     const list = await GroupService.getListUserGroup(req.params.id);
     res.json(list);
   }
+  
   @GET("/getGroupUser", {
     handlers: [requireToken],
   })
@@ -113,21 +117,24 @@ class GroupController {
     const list = await GroupService.getListGroup(req.user);
     res.json(list);
   }
+  
   @DELETE("/deleteGroup/:id", {
     handlers: [requireToken],
   })
   async deleteToDo(req: BaseRequest, res: Response, next: NextFunction) {
-    const isValid = await GroupService.isValid(req.params.id, req.user);
+    const isValid = await GroupService.getRoleGroupbyId(
+      req.params.id,
+      req.user
+    );
     if (!isValid) {
       throw Error("Not ok");
     }
     if (!isValid.role) {
-      throw Error("Not ok");
+      throw Error("Not true");
     }
-    await GroupService.deleteGroup(req.params.id, req.user);
+    await GroupService.deleteGroup(req.params.id);
     res.json({ message: "Ok" });
   }
-
 }
 
 export default new GroupController();

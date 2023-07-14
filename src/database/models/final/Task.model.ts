@@ -16,6 +16,9 @@ export default class Task extends Model {
     parentId!: string
 
     @Column
+    groupId!: string
+
+    @Column
     title!: string
 
     @Column
