@@ -1,4 +1,3 @@
-import Group from "database/models/final/Group.model";
 import Task from "database/models/final/Task.model";
 import User from "database/models/final/User.model";
 import MMUserTask from "database/models/relations/MMUserTask.model";
@@ -73,7 +72,7 @@ export default class TaskService {
     return listTodo;
   }
 
-  static async createNewToDo(dto: TaskDto) {
+  static async createNewToDo(dto: TaskDto, user: User) {
     const newtask = await Task.create({
       parentId: dto.parentId,
       groupId: dto.groupId,
@@ -99,7 +98,6 @@ export default class TaskService {
         }
       }
     }
-
 
     return newtask;
   }
