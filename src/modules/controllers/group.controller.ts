@@ -133,6 +133,7 @@ class GroupController {
       throw Error("Not true");
     }
     await GroupService.deleteGroup(req.params.id);
+
     res.json({ message: "Ok" });
   }
 }

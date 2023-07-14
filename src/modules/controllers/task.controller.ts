@@ -4,8 +4,6 @@ import { NextFunction, Response } from "express";
 import TaskService from "modules/services/task.service";
 import { TaskDto } from "modules/dto/task.dto";
 import { dtoValidator } from "middlewares/validate";
-//import PassService from "modules/services/pass.service";
-//import TokenService from "modules/services/token.service";
 import { requireToken } from "middlewares/require-token";
 import GroupService from "modules/services/group.service";
 import { ChangeTaskDto } from "modules/dto/change-task.dto";
@@ -134,6 +132,7 @@ class TodoController {
       }
     }
     await TaskService.deleteTask(req.params.id);
+
     res.json({ message: "Ok" });
   }
 

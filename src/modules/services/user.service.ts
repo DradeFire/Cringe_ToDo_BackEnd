@@ -150,5 +150,6 @@ export default class UserService {
     await MMUserTask.destroy({ where: { userId: user.id } });
     await Token.destroy({ where: { login: user.login } });
     await User.destroy({ where: { login: user.login } });
+
   }
 }

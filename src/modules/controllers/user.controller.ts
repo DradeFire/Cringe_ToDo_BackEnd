@@ -16,7 +16,6 @@ import PassService from "modules/services/pass.service";
 
 @ApiController("/api/user")
 class UserController {
-  
   @GET("/me", {
     handlers: [requireToken],
   })
